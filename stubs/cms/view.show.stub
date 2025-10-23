@@ -1,0 +1,11 @@
+@extends('layouts.app')
+
+@section('content')
+<h1>Detail {{ ucfirst('{{ kebabs }}') }}</h1>
+<ul>
+  <li>ID: {{ ${{ var }}->id }}</li>
+  @foreach ((new \App\Models\{{ model }})->getFillable() as $col)
+    <li>{{ $col }}: {{ ${{ var }}->{$col} }}</li>
+  @endforeach
+</ul>
+@endsection

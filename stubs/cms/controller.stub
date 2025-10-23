@@ -1,0 +1,49 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\{{ model }};
+use App\Http\Requests\{{ model }}\StoreRequest;
+use App\Http\Requests\{{ model }}\UpdateRequest;
+
+class {{ model }}Controller extends Controller
+{
+    public function index()
+    {
+        $items = {{ model }}::latest()->paginate();
+        return view('{{ kebabs }}.index', compact('items'));
+    }
+
+    public function create()
+    {
+        return view('{{ kebabs }}.create');
+    }
+
+    public function store(StoreRequest $request)
+    {
+        $item = {{ model }}::create($request->validated());
+        return redirect()->route('{{ kebabs }}.index')->with('success', '{{ model }} created');
+    }
+
+    public function show({{ model }} ${{ var }})
+    {
+        return view('{{ kebabs }}.show', compact('{{ var }}'));
+    }
+
+    public function edit({{ model }} ${{ var }})
+    {
+        return view('{{ kebabs }}.edit', compact('{{ var }}'));
+    }
+
+    public function update(UpdateRequest $request, {{ model }} ${{ var }})
+    {
+        ${{ var }}->update($request->validated());
+        return redirect()->route('{{ kebabs }}.index')->with('success', '{{ model }} updated');
+    }
+
+    public function destroy({{ model }} ${{ var }})
+    {
+        ${{ var }}->delete();
+        return back()->with('success', '{{ model }} deleted');
+    }
+}
