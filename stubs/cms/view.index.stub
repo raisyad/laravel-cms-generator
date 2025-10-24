@@ -1,8 +1,18 @@
-@extends('layouts.app')
+@extends('layouts.cms')
 
 @section('content')
 <h1>{{ ucfirst('{{ kebabs }}') }} - Index</h1>
-<a href="{{ route('{{ kebabs }}.create') }}">Create</a>
+
+<form method="GET" action="{{ route('{{ routeNamePrefix }}{{ kebabs }}.index') }}" style="margin-bottom:12px">
+  <input type="text" name="q" value="{{ request('q') }}" placeholder="Search...">
+  @if({{ hasSoftDeletesFlag }})
+    <label><input type="checkbox" name="with_trashed" value="1" {{ request('with_trashed') ? 'checked' : '' }}> with trashed</label>
+    <label><input type="checkbox" name="only_trashed" value="1" {{ request('only_trashed') ? 'checked' : '' }}> only trashed</label>
+  @endif
+  <button type="submit">Filter</button>
+</form>
+
+<a href="{{ route('{{ routeNamePrefix }}{{ kebabs }}.create') }}">Create</a>
 
 <table border="1" cellpadding="6">
   <thead>
@@ -22,12 +32,18 @@
           <td>{{ $item->{$col} }}</td>
         @endforeach
         <td>
-          <a href="{{ route('{{ kebabs }}.show', $item) }}">Show</a>
-          <a href="{{ route('{{ kebabs }}.edit', $item) }}">Edit</a>
-          <form action="{{ route('{{ kebabs }}.destroy', $item) }}" method="POST" style="display:inline">
+          <a href="{{ route('{{ routeNamePrefix }}{{ kebabs }}.show', $item) }}">Show</a>
+          <a href="{{ route('{{ routeNamePrefix }}{{ kebabs }}.edit', $item) }}">Edit</a>
+          <form action="{{ route('{{ routeNamePrefix }}{{ kebabs }}.destroy', $item) }}" method="POST" style="display:inline">
             @csrf @method('DELETE')
             <button type="submit" onclick="return confirm('Delete?')">Delete</button>
           </form>
+          @if (method_exists($item, 'trashed') && $item->trashed())
+            <form method="POST" action="{{ route('{{ routeNamePrefix }}{{ kebabs }}.restore', $item->id) }}" style="display:inline">
+              @csrf
+              <button type="submit">Restore</button>
+            </form>
+          @endif
         </td>
       </tr>
     @endforeach

@@ -1,16 +1,11 @@
-@extends('layouts.app')
+@extends('layouts.cms')
 
 @section('content')
 <h1>Create {{ ucfirst('{{ kebabs }}') }}</h1>
-<form method="POST" action="{{ route('{{ kebabs }}.store') }}">
+
+<form method="POST" action="{{ route('{{ routeNamePrefix }}{{ kebabs }}.store') }}">
   @csrf
-  @foreach ((new \App\Models\{{ model }})->getFillable() as $col)
-    <div>
-      <label>{{ $col }}</label>
-      <input type="text" name="{{ $col }}" value="{{ old($col) }}">
-      @error($col) <small>{{ $message }}</small> @enderror
-    </div>
-  @endforeach
+  {{ formFieldsCreate }}
   <button type="submit">Save</button>
 </form>
 @endsection

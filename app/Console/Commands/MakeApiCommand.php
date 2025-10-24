@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Support\Scaffold\StubRenderer;
+use App\Support\Scaffold\TableIntrospector;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use App\Support\Scaffold\TableIntrospector;
-use App\Support\Scaffold\StubRenderer;
 
 class MakeApiCommand extends Command
 {
@@ -14,7 +14,12 @@ class MakeApiCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'make:api {table}';
+    protected $signature = 'make:api {table}
+    {--force : Overwrite files if exist}
+    {--with-relations : Generate belongsTo/hasMany & form selects}
+    {--with-softdeletes : Enable soft deletes if deleted_at exists}
+    {--with-search : Add simple search on index}
+    {--with-policy : Generate policy & register}';
 
     /**
      * The console command description.
@@ -26,19 +31,20 @@ class MakeApiCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(TableIntrospector $inspector, StubRenderer $stub) {
+    public function handle(TableIntrospector $inspector, StubRenderer $stub)
+    {
         $table = $this->argument('table');
-        $meta  = $inspector->describe($table);
+        $meta = $inspector->describe($table);
 
-        $Model  = $meta['model'];
-        $var    = Str::camel($Model);
+        $Model = $meta['model'];
+        $var = Str::camel($Model);
         $kebabs = $meta['kebabPlural'];
 
         // Api Controller
         $stub->put(base_path("app/Http/Controllers/Api/{$Model}ApiController.php"),
             $stub->render(base_path('stubs/api/controller.stub'), [
                 'model' => $Model,
-                'var'   => $var,
+                'var' => $var,
             ])
         );
         $this->info("ApiController Created: {$Model}ApiController");
@@ -56,15 +62,17 @@ class MakeApiCommand extends Command
             base_path('routes/api.php'),
             "Route::middleware('auth:sanctum')->apiResource('{$kebabs}', \\App\\Http\\Controllers\\Api\\{$Model}ApiController::class);"
         );
-        $this->info("Route api added");
+        $this->info('Route api added');
 
         $this->info("Successfully generated API for table '{$table}'");
+
         return self::SUCCESS;
     }
 
-    private function appendRouteApi(string $file, string $line): void {
+    private function appendRouteApi(string $file, string $line): void
+    {
         $content = file_exists($file) ? file_get_contents($file) : "<?php\n\nuse Illuminate\\Support\\Facades\\Route;\n\n";
-        if (!str_contains($content, $line)) {
+        if (! str_contains($content, $line)) {
             $content .= "\n".$line."\n";
             file_put_contents($file, $content);
         }
