@@ -10,6 +10,8 @@ class {{ model }}Controller extends Controller
 {
     public function index()
     {
+        {{ authorizeIndex }}
+
         $q = request('q');
         $query = \App\Models\{{ model }}::query();
 
@@ -17,13 +19,15 @@ class {{ model }}Controller extends Controller
 
         {{ searchQuery }}
 
-        $items = $query->latest()->paginate()->withQueryString();
+        $posts = $query->latest()->paginate()->withQueryString();
 
-        return view('{{ kebabs }}.index', compact('items', 'q'{{ fkCompactIndex }}));
+        return view('{{ kebabs }}.index', compact('posts', 'q'{{ fkCompactIndex }}));
     }
 
     public function create()
     {
+        {{ authorizeCreate }}
+
         {{ fkListLoadsCreate }}
 
         return view('{{ kebabs }}.create'{{ fkCompactCreate }});
@@ -31,7 +35,9 @@ class {{ model }}Controller extends Controller
 
     public function store(StoreRequest $request)
     {
-        $item = {{ model }}::create($request->validated());
+        {{ authorizeStore }}
+
+        $post= {{ model }}::create($request->validated());
 
         return redirect()->route('{{ routeNamePrefix }}{{ kebabs }}.index')
             ->with('success', '{{ model }} created');
@@ -39,11 +45,15 @@ class {{ model }}Controller extends Controller
 
     public function show({{ model }} ${{ var }})
     {
+        {{ authorizeShow }}
+
         return view('{{ kebabs }}.show', compact('{{ var }}'));
     }
 
     public function edit({{ model }} ${{ var }})
     {
+        {{ authorizeEdit }}
+
         {{ fkListLoadsEdit }}
 
         return view('{{ kebabs }}.edit', compact('{{ var }}'{{ fkCompactEdit }}));
@@ -51,6 +61,8 @@ class {{ model }}Controller extends Controller
 
     public function update(UpdateRequest $request, {{ model }} ${{ var }})
     {
+        {{ authorizeUpdate }}
+
         ${{ var }}->update($request->validated());
 
         return redirect()->route('{{ routeNamePrefix }}{{ kebabs }}.index')
@@ -59,6 +71,8 @@ class {{ model }}Controller extends Controller
 
     public function destroy({{ model }} ${{ var }})
     {
+        {{ authorizeDestroy }}
+
         ${{ var }}->delete();
 
         return back()->with('success', '{{ model }} deleted');
@@ -66,8 +80,11 @@ class {{ model }}Controller extends Controller
 
     public function restore($id)
     {
-        $item = \App\Models\{{ model }}::onlyTrashed()->findOrFail($id);
-        $item->restore();
+        $post = \App\Models\{{ model }}::onlyTrashed()->findOrFail($id);
+
+        {{ authorizeRestore }}
+
+        $post->restore();
 
         return back()->with('success', '{{ model }} restored');
     }

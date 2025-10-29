@@ -7,9 +7,12 @@
   <title>{{ config('app.name', 'Laravel') }}</title>
 
   {{-- Breeze assets --}}
-  @vite(['resources/css/app.css', 'resources/js/app.js'])
+  @vite([
+      'resources/css/app.css',
+      'resources/js/app.js',
+  ])
 </head>
-<body class="font-sans antialiased">
+<body class="bg-gradient-to-b from-slate-50 to-slate-100 min-h-screen text-slate-800 font-sans antialiased">
   <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
     {{-- Pakai navbar Breeze biar konsisten --}}
     @include('layouts.navigation')

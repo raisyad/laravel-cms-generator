@@ -164,19 +164,54 @@ class MakeCmsCommand extends Command
         );
         $this->info('Requests Created: Store/Update');
 
+        $policyCalls = '';
+        if ($this->option('with-policy')) {
+            $policyCalls = [
+                'index'   => "\$this->authorize('viewAny', \\App\\Models\\{$Model}::class);",
+                'create'  => "\$this->authorize('create', \\App\\Models\\{$Model}::class);",
+                'store'   => "\$this->authorize('create', \\App\\Models\\{$Model}::class);",
+                'show'    => "\$this->authorize('view', \${$var});",
+                'edit'    => "\$this->authorize('update', \${$var});",
+                'update'  => "\$this->authorize('update', \${$var});",
+                'destroy' => "\$this->authorize('delete', \${$var});",
+                'restore' => "\$this->authorize('restore', \${$var});", // optional
+            ];
+        } else {
+            $policyCalls = [
+                'index'   => '',
+                'create'  => '',
+                'store'   => '',
+                'show'    => '',
+                'edit'    => '',
+                'update'  => '',
+                'destroy' => '',
+                'restore' => '',
+            ];
+        }
+
         // ===== Controller
         $controllerContent = $stub->render(base_path('stubs/cms/controller.stub'), [
-            'model' => $Model,
-            'var' => $var,
-            'kebabs' => $kebabs,
-            'softDeletesQuery' => rtrim($softDeletesQuery),
-            'searchQuery' => rtrim($searchQuery),
-            'fkListLoadsCreate' => rtrim($fkLoadsCreate),
-            'fkListLoadsEdit' => rtrim($fkLoadsEdit),
-            'fkCompactIndex' => '',
-            'fkCompactCreate' => $fkCompactCreate,
-            'fkCompactEdit' => $fkCompactEdit,
-            'routeNamePrefix' => $routeNamePrefix,
+            'model'               => $Model,
+            'var'                 => $var,
+            'kebabs'              => $kebabs,
+            'softDeletesQuery'    => rtrim($softDeletesQuery),
+            'searchQuery'         => rtrim($searchQuery),
+            'fkListLoadsCreate'   => rtrim($fkLoadsCreate),
+            'fkListLoadsEdit'     => rtrim($fkLoadsEdit),
+            'fkCompactIndex'      => '',
+            'fkCompactCreate'     => $fkCompactCreate,
+            'fkCompactEdit'       => $fkCompactEdit,
+            'routeNamePrefix'     => $routeNamePrefix,
+
+            // policy injection
+            'authorizeIndex'      => $policyCalls['index'],
+            'authorizeCreate'     => $policyCalls['create'],
+            'authorizeStore'      => $policyCalls['store'],
+            'authorizeShow'       => $policyCalls['show'],
+            'authorizeEdit'       => $policyCalls['edit'],
+            'authorizeUpdate'     => $policyCalls['update'],
+            'authorizeDestroy'    => $policyCalls['destroy'],
+            'authorizeRestore'    => $policyCalls['restore'],
         ]);
         $stub->put(base_path("app/Http/Controllers/{$Model}Controller.php"), $controllerContent);
         $this->info("Controller Created: {$Model}Controller");
@@ -217,6 +252,26 @@ class MakeCmsCommand extends Command
         ]);
         $stub->put(base_path("resources/views/{$kebabs}/show.blade.php"), $viewShow);
 
+        if ($this->option('with-policy')) {
+            $policyPath = base_path("app/Policies/{$Model}Policy.php");
+
+            if (! file_exists($policyPath) || $this->option('force')) {
+                // pastikan folder Policies ada
+                if (! is_dir(base_path('app/Policies'))) {
+                    mkdir(base_path('app/Policies'), 0777, true);
+                }
+
+                $policyContent = $stub->render(base_path('stubs/cms/policy.stub'), [
+                    'model' => $Model,
+                ]);
+
+                $stub->put($policyPath, $policyContent);
+
+                $this->info("Policy Created: app/Policies/{$Model}Policy.php");
+            } else {
+                $this->line('Policy exists: skip (use --force to overwrite)');
+            }
+        }
         // // ===== Routes (web) => selalu /cms + cms.*
         // $this->appendRouteWeb(
         //     base_path('routes/web.php'),

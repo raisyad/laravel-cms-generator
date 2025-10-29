@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class {{ model }} extends Model
 {
+    {{ softDeletesTrait }}
+
     protected $fillable = [{{ fillableArray }}];
 
-    {{ softDeletesTrait }}
 
     {{ relations }}
 }

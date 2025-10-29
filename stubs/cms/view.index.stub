@@ -4,12 +4,12 @@
 <h1>{{ ucfirst('{{ kebabs }}') }} - Index</h1>
 
 <form method="GET" action="{{ route('{{ routeNamePrefix }}{{ kebabs }}.index') }}" style="margin-bottom:12px">
-  <input type="text" name="q" value="{{ request('q') }}" placeholder="Search...">
-  @if({{ hasSoftDeletesFlag }})
-    <label><input type="checkbox" name="with_trashed" value="1" {{ request('with_trashed') ? 'checked' : '' }}> with trashed</label>
-    <label><input type="checkbox" name="only_trashed" value="1" {{ request('only_trashed') ? 'checked' : '' }}> only trashed</label>
-  @endif
-  <button type="submit">Filter</button>
+    <input type="text" name="q" value="{{ request('q') }}" placeholder="Search...">
+    @if({{ hasSoftDeletesFlag }})
+        <label><input type="checkbox" name="with_trashed" value="1" {{ request('with_trashed') ? 'checked' : '' }}> with trashed</label>
+        <label><input type="checkbox" name="only_trashed" value="1" {{ request('only_trashed') ? 'checked' : '' }}> only trashed</label>
+    @endif
+    <button type="submit">Filter</button>
 </form>
 
 <a href="{{ route('{{ routeNamePrefix }}{{ kebabs }}.create') }}">Create</a>
@@ -25,7 +25,7 @@
     </tr>
   </thead>
   <tbody>
-    @foreach ($items as $item)
+    @foreach ($posts as $item)
       <tr>
         <td>{{ $item->id }}</td>
         @foreach ((new \App\Models\{{ model }})->getFillable() as $col)
@@ -50,5 +50,5 @@
   </tbody>
 </table>
 
-{{ $items->links() }}
+{{ $posts->links() }}
 @endsection

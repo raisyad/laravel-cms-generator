@@ -25,3 +25,17 @@ require __DIR__.'/auth.php';
 | CMS routes (selalu /cms + cms.*)
 |-------------------------------------------
 */
+
+// ---------------------------------------------
+// CMS routes group (auto-managed)
+// Jangan hapus marker START/END agar generator bisa inject resource
+// [cms-generator] START
+Route::middleware(['auth'])
+    ->prefix('cms')
+    ->as('cms.')
+    ->group(function () {
+        // [cms-generator] INSERT HERE
+        Route::resource('posts', \App\Http\Controllers\PostController::class)->names('posts');
+        Route::post('posts/{id}/restore', [\App\Http\Controllers\PostController::class, 'restore'])->name('posts.restore');
+    });
+// [cms-generator] END
