@@ -36,6 +36,5 @@ Route::middleware(['auth'])
     ->group(function () {
         // [cms-generator] INSERT HERE
         Route::resource('posts', \App\Http\Controllers\PostController::class)->names('posts');
-        Route::post('posts/{id}/restore', [\App\Http\Controllers\PostController::class, 'restore'])->name('posts.restore');
     });
 // [cms-generator] END

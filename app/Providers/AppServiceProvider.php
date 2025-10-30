@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Pagination\Paginator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,5 +27,10 @@ class AppServiceProvider extends ServiceProvider
                 \App\Console\Commands\MakeApiCommand::class,
             ]);
         }
+        Paginator::useTailwind();
+
+        // $this->publishes([
+        // __DIR__.'/../stubs/cms' => base_path('stubs/cms'),
+        // ], 'cms-generator-stubs');
     }
 }

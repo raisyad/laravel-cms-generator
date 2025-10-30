@@ -323,86 +323,121 @@ class MakeCmsCommand extends Command
     }
 
     private function inputForField(array $f, string $var, array $fkMap): string
-    {
-        $name = $f['name'];
-        $valueExpr = "{{ old('{$name}', \${$var}->{$name} ?? '') }}";
+{
+    $name  = $f['name'];
+    $label = ucwords(str_replace('_', ' ', $name));
 
-        // FK => select
-        if (isset($fkMap[$name])) {
-            $ref = $fkMap[$name];
-            $listVar = $ref['listVar'];
-            $label = $ref['label'] ?? 'name';
+    // nilai lama / default (untuk create/edit)
+    $valueExpr = "{{ old('{$name}', \${$var}->{$name} ?? '') }}";
 
-            return <<<HTML
-<div>
-  <label>{$name}</label>
-  <select name="{$name}">
-    <option value="">-- choose --</option>
-    @foreach({$listVar} as \$opt)
-      <option value="{{ \$opt->id }}" {{ (string)\$opt->id === (string)old('{$name}', \${$var}->{$name} ?? '') ? 'selected' : '' }}>
-        {{ \$opt->{$label} ?? ('ID ' . \$opt->id) }}
-      </option>
-    @endforeach
-  </select>
-  @error('{$name}') <small>{{ \$message }}</small> @enderror
-</div>
-HTML;
-        }
+    // Kelas umum untuk input agar mulus & tanpa outline hitam
+    $inputBase = 'mt-1 block w-full rounded-xl border border-transparent ring-1 ring-slate-300 '.
+                 'bg-white px-3 py-2 text-slate-800 shadow-sm placeholder-slate-400 '.
+                 'focus:outline-none focus:ring-2 focus:ring-indigo-500';
 
-        // Type lainnya
-        switch ($f['type']) {
-            case 'integer':
-            case 'decimal':
-                $type = 'number';
-                break;
+    $errorLine = "@error('{$name}')<p class=\"mt-1 text-sm text-red-600\">{{ \$message }}</p>@enderror";
 
-            case 'boolean':
-                return <<<HTML
-<div>
-  <label>{$name}</label>
-  <input type="checkbox" name="{$name}" value="1" {{ old('{$name}', \${$var}->{$name} ?? false) ? 'checked' : '' }}>
-  @error('{$name}') <small>{{ \$message }}</small> @enderror
-</div>
-HTML;
-
-            case 'datetime':
-                $type = 'datetime-local';
-                break;
-
-            case 'json':
-                return <<<HTML
-<div>
-  <label>{$name}</label>
-  <textarea name="{$name}" rows="4">{{ old('{$name}', isset(\${$var}) && \${$var}->{$name} ? json_encode(\${$var}->{$name}, JSON_PRETTY_PRINT) : '') }}</textarea>
-  <small>JSON</small>
-  @error('{$name}') <small>{{ \$message }}</small> @enderror
-</div>
-HTML;
-
-            default:
-                if (preg_match('/email/i', $name)) {
-                    $type = 'email';
-                } elseif (preg_match('/password/i', $name)) {
-                    $type = 'password';
-                } elseif (preg_match('/url|link/i', $name)) {
-                    $type = 'url';
-                } elseif (preg_match('/date/i', $name)) {
-                    $type = 'date';
-                } elseif (preg_match('/time/i', $name)) {
-                    $type = 'time';
-                } else {
-                    $type = 'text';
-                }
-        }
+    // ===== Relasi FK => <select>
+    if (isset($fkMap[$name])) {
+        $ref    = $fkMap[$name];
+        $list   = $ref['listVar'];  // ex: $categories
+        $optLbl = $ref['label'] ?? 'name';
 
         return <<<HTML
-<div>
-  <label>{$name}</label>
-  <input type="{$type}" name="{$name}" value="{$valueExpr}">
-  @error('{$name}') <small>{{ \$message }}</small> @enderror
+<div class="grid grid-cols-12 items-start gap-4">
+  <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium text-slate-700">{$label}</label>
+  <div class="col-span-12 sm:col-span-6">
+    <select name="{$name}" class="{$inputBase} bg-white">
+      <option value="">-- choose --</option>
+      @foreach({$list} as \$opt)
+        <option value="{{ \$opt->id }}" {{ (string)\$opt->id === (string)old('{$name}', \${$var}->{$name} ?? '') ? 'selected' : '' }}>
+          {{ \$opt->{$optLbl} ?? ('ID ' . \$opt->id) }}
+        </option>
+      @endforeach
+    </select>
+    {$errorLine}
+  </div>
 </div>
 HTML;
     }
+
+    // ===== Field khusus
+    // boolean => checkbox
+    if ($f['type'] === 'boolean') {
+        return <<<HTML
+<div class="grid grid-cols-12 items-center gap-4">
+  <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium text-slate-700">{$label}</label>
+  <div class="col-span-12 sm:col-span-6">
+    <label class="inline-flex items-center gap-2">
+      <input type="checkbox" name="{$name}" value="1"
+             class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+             {{ old('{$name}', \${$var}->{$name} ?? false) ? 'checked' : '' }}>
+      <span class="text-slate-700">Yes</span>
+    </label>
+    {$errorLine}
+  </div>
+</div>
+HTML;
+    }
+
+    // json => textarea pretty
+    if ($f['type'] === 'json') {
+        return <<<HTML
+<div class="grid grid-cols-12 items-start gap-4">
+  <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium text-slate-700">{$label}</label>
+  <div class="col-span-12 sm:col-span-8">
+    <textarea name="{$name}" rows="6" class="{$inputBase} font-mono text-sm">{{ old('{$name}', isset(\${$var}) && \${$var}->{$name} ? json_encode(\${$var}->{$name}, JSON_PRETTY_PRINT) : '') }}</textarea>
+    <p class="mt-1 text-xs text-slate-500">Masukkan JSON valid.</p>
+    {$errorLine}
+  </div>
+</div>
+HTML;
+    }
+
+    // Jenis input lain
+    $type = 'text';
+    switch ($f['type']) {
+        case 'integer':
+        case 'decimal':
+            $type = 'number';
+            break;
+        case 'datetime':
+            $type = 'datetime-local';
+            break;
+        default:
+            if (preg_match('/email/i', $name))      $type = 'email';
+            elseif (preg_match('/password/i', $name)) $type = 'password';
+            elseif (preg_match('/url|link/i', $name)) $type = 'url';
+            elseif (preg_match('/date/i', $name))     $type = 'date';
+            elseif (preg_match('/time/i', $name))     $type = 'time';
+    }
+
+    // textarea untuk field bernama "body", "description", atau tipe text panjang
+    $isLikelyTextArea = in_array($name, ['body','description','content'], true);
+
+    if ($isLikelyTextArea) {
+        return <<<HTML
+<div class="grid grid-cols-12 items-start gap-4">
+  <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium text-slate-700">{$label}</label>
+  <div class="col-span-12 sm:col-span-8">
+    <textarea name="{$name}" rows="4" class="{$inputBase}">{$valueExpr}</textarea>
+    {$errorLine}
+  </div>
+</div>
+HTML;
+    }
+
+    // default: input
+    return <<<HTML
+<div class="grid grid-cols-12 items-start gap-4">
+  <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium text-slate-700">{$label}</label>
+  <div class="col-span-12 sm:col-span-6">
+    <input type="{$type}" name="{$name}" value="{$valueExpr}" class="{$inputBase}">
+    {$errorLine}
+  </div>
+</div>
+HTML;
+}
 
     private function phpArray(array $arr): string
     {
