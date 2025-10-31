@@ -1,3 +1,90 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 1) Base: var + reset ring/focus */
+@layer base {
+  :root {
+    --bg: theme(colors.slate.100);
+    --fg: theme(colors.slate.900);
+    --card: theme(colors.white);
+    --muted: theme(colors.slate.500);
+    --ring: theme(colors.slate.200);
+    --ring-strong: theme(colors.slate.300);
+    --accent: theme(colors.indigo.600);
+    --accent-hover: theme(colors.indigo.700);
+    --danger: theme(colors.red.600);
+    --danger-hover: theme(colors.red.700);
+    --success: theme(colors.emerald.600);
+  }
+  .dark {
+    --bg: theme(colors.slate.900);
+    --fg: theme(colors.slate.100);
+    --card: theme(colors.slate.800);
+    --muted: theme(colors.slate.400);
+    --ring: theme(colors.slate.700);
+    --ring-strong: theme(colors.slate.600);
+    --accent: theme(colors.indigo.500);
+    --accent-hover: theme(colors.indigo.600);
+    --danger: theme(colors.red.600);
+    --danger-hover: theme(colors.red.700);
+    --success: theme(colors.emerald.600);
+  }
+
+  html, body {
+    background-color: var(--bg);
+    color: var(--fg);
+  }
+
+  /* Hilangkan outline default, ganti ring yang accessible */
+  :focus { outline: none }
+  :focus-visible {
+    @apply ring-2 ring-offset-2 ring-offset-transparent;
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  [x-cloak] { display: none !important; }
+}
+
+/* 2) Components: btn, card, input, table, badge, alert, toolbar */
+@layer components {
+  .btn { @apply inline-flex items-center justify-center rounded-xl text-sm font-medium transition shadow-sm; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-hover); }
+
+  .btn-ghost { @apply bg-white dark:bg-transparent ring-1; border-color: var(--ring); color: var(--fg); }
+  .btn-ghost:hover { @apply bg-slate-50 dark:bg-slate-700/60; }
+
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger:hover { background: var(--danger-hover); }
+
+  .card { @apply rounded-2xl shadow-sm ring-1 p-6; border-color: var(--ring); background: var(--card); }
+
+  .input {
+    @apply w-full rounded-xl border-0 ring-1 px-4 py-3 bg-white dark:bg-slate-900 placeholder-slate-400
+           focus:ring-2;
+    border-color: var(--ring);
+  }
+
+  .checkbox { @apply rounded border-slate-300 text-indigo-600 focus:ring-indigo-500; }
+
+  .toolbar {
+    @apply flex items-center justify-between gap-4 mb-6;
+  }
+
+  .table-wrap { @apply overflow-x-auto rounded-xl shadow-sm ring-1; border-color: var(--ring); background: var(--card); }
+  .tbl { @apply min-w-full text-left text-sm; }
+  .tbl thead { @apply bg-slate-50 dark:bg-slate-900/40 text-slate-600 dark:text-slate-200; }
+  .tbl th { @apply py-3 px-4 font-medium border-b; border-color: var(--ring); }
+  .tbl td { @apply py-4 px-4 align-top border-b; border-color: var(--ring); }
+
+
+  .badge { @apply inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs dark:bg-slate-700; }
+
+  .alert-amber { @apply rounded-lg bg-amber-50 px-4 py-2 text-amber-800 text-sm; }
+}
+
+/* 3) Utilities kecil yang sering dipakai */
+@layer utilities {
+  .muted { color: var(--muted); }
+}

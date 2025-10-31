@@ -2,10 +2,20 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PostController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController as AuthController;
+use App\Http\Controllers\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::redirect('/dashboard', '/cms')->middleware(['auth','verified']);
+
+Route::middleware('guest')->group(function () {
+    Route::get('/', function () { return view('welcome');})->name('home');
+    Route::get('login',    [AuthController::class,'create'])->name('login');
+    Route::get('register', [RegisteredUserController::class,'create'])->name('register');
+    Route::get('forgot-password', [PasswordResetLinkController::class,'create'])->name('password.request');
+    Route::get('confirm-password', [ConfirmablePasswordController::class,'show'])->name('password.confirm');
+    // dst...
 });
 
 Route::get('/dashboard', function () {
@@ -18,10 +28,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
 
 /*
 |-------------------------------------------
 | CMS routes (selalu /cms + cms.*)
 |-------------------------------------------
 */
+
+require __DIR__.'/auth.php';

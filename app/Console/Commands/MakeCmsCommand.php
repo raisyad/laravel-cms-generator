@@ -305,6 +305,8 @@ class MakeCmsCommand extends Command
         // 4) sisipkan ke dalam group setelah marker INSERT
         $this->addLinesToCmsGroup($webFile, $lines);
 
+        $this->upsertCmsResourceConfig($kebabs);
+
         // ===== Format otomatis
         $this->formatFiles([
             base_path("app/Models/{$Model}.php"),
@@ -332,8 +334,10 @@ class MakeCmsCommand extends Command
 
     // Kelas umum untuk input agar mulus & tanpa outline hitam
     $inputBase = 'mt-1 block w-full rounded-xl border border-transparent ring-1 ring-slate-300 '.
-                 'bg-white px-3 py-2 text-slate-800 shadow-sm placeholder-slate-400 '.
-                 'focus:outline-none focus:ring-2 focus:ring-indigo-500';
+             'bg-white px-3 py-2 text-slate-900 placeholder-slate-400 '.
+             'focus:outline-none focus:ring-2 focus:ring-indigo-500 '.
+             'dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400 dark:ring-slate-700';
+
 
     $errorLine = "@error('{$name}')<p class=\"mt-1 text-sm text-red-600\">{{ \$message }}</p>@enderror";
 
@@ -345,7 +349,7 @@ class MakeCmsCommand extends Command
 
         return <<<HTML
 <div class="grid grid-cols-12 items-start gap-4">
-  <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium text-slate-700">{$label}</label>
+  <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium dark:text-slate-300">{$label}</label>
   <div class="col-span-12 sm:col-span-6">
     <select name="{$name}" class="{$inputBase} bg-white">
       <option value="">-- choose --</option>
@@ -366,13 +370,13 @@ HTML;
     if ($f['type'] === 'boolean') {
         return <<<HTML
 <div class="grid grid-cols-12 items-center gap-4">
-  <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium text-slate-700">{$label}</label>
+  <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium dark:text-slate-300">{$label}</label>
   <div class="col-span-12 sm:col-span-6">
     <label class="inline-flex items-center gap-2">
       <input type="checkbox" name="{$name}" value="1"
              class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
              {{ old('{$name}', \${$var}->{$name} ?? false) ? 'checked' : '' }}>
-      <span class="text-slate-700">Yes</span>
+      <span class="dark:text-slate-300">Yes</span>
     </label>
     {$errorLine}
   </div>
@@ -384,10 +388,10 @@ HTML;
     if ($f['type'] === 'json') {
         return <<<HTML
 <div class="grid grid-cols-12 items-start gap-4">
-  <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium text-slate-700">{$label}</label>
+  <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium dark:text-slate-300">{$label}</label>
   <div class="col-span-12 sm:col-span-8">
     <textarea name="{$name}" rows="6" class="{$inputBase} font-mono text-sm">{{ old('{$name}', isset(\${$var}) && \${$var}->{$name} ? json_encode(\${$var}->{$name}, JSON_PRETTY_PRINT) : '') }}</textarea>
-    <p class="mt-1 text-xs text-slate-500">Masukkan JSON valid.</p>
+    <p class="mt-1 text-xs dark:text-slate-400">Masukkan JSON valid.</p>
     {$errorLine}
   </div>
 </div>
@@ -418,7 +422,7 @@ HTML;
     if ($isLikelyTextArea) {
         return <<<HTML
 <div class="grid grid-cols-12 items-start gap-4">
-  <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium text-slate-700">{$label}</label>
+  <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium dark:text-slate-300">{$label}</label>
   <div class="col-span-12 sm:col-span-8">
     <textarea name="{$name}" rows="4" class="{$inputBase}">{$valueExpr}</textarea>
     {$errorLine}
@@ -430,7 +434,7 @@ HTML;
     // default: input
     return <<<HTML
 <div class="grid grid-cols-12 items-start gap-4">
-  <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium text-slate-700">{$label}</label>
+  <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium dark:text-slate-300">{$label}</label>
   <div class="col-span-12 sm:col-span-6">
     <input type="{$type}" name="{$name}" value="{$valueExpr}" class="{$inputBase}">
     {$errorLine}
@@ -551,6 +555,9 @@ HTML;
         ->prefix('cms')
         ->as('cms.')
         ->group(function () {
+            Route::get('/', function () {
+                return view('cms.dashboard');
+            })->name('dashboard');
             // [cms-generator] INSERT HERE
         });
     // [cms-generator] END
@@ -645,5 +652,27 @@ HTML;
         if ($new !== $content) {
             file_put_contents($webFile, $new);
         }
+    }
+
+    private function upsertCmsResourceConfig(string $slug, string $label = null): void
+    {
+        $cfgPath = config_path('cms.php');
+        $config  = file_exists($cfgPath) ? include $cfgPath : ['resources' => []];
+
+        $label ??= \Illuminate\Support\Str::headline($slug);
+
+        $config['resources'][$slug] = $config['resources'][$slug] ?? [
+            'label'   => $label,
+            'icon'    => null,
+            'visible' => true,
+        ];
+
+        $export = var_export($config, true);
+
+        // Convert to short array syntax safely (all opens & closes)
+        $export = preg_replace('/\barray \(/', '[', $export);   // all "array ("
+        $export = preg_replace('/\)(,?)/', ']$1', $export);     // every closing ")" -> "]" (with optional comma)
+
+        file_put_contents($cfgPath, "<?php\n\nreturn " . $export . ";\n");
     }
 }

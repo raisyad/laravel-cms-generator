@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-guest-layout title="Register" subtitle="Buat akun baru untuk mulai menggunakan CMS.">
     <form method="POST" action="{{ route('register') }}">
         @csrf
 

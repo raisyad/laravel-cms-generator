@@ -1,25 +1,25 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>{{ config('app.name', 'Laravel') }}</title>
-
-  {{-- Breeze assets --}}
-  @vite([
-      'resources/css/app.css',
-      'resources/js/app.js',
-  ])
+  @vite(['resources/css/app.css','resources/js/app.js'])
+  <script>
+  // anti-flicker: pasang seawal mungkin
+  (function() {
+    const stored = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const shouldDark = stored ? stored === 'dark' : prefersDark;
+    if (shouldDark) document.documentElement.classList.add('dark');
+  })();
+  </script>
 </head>
-<body class="bg-gradient-to-b from-slate-50 to-slate-100 min-h-screen text-slate-800 font-sans antialiased">
-  <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-    {{-- Pakai navbar Breeze biar konsisten --}}
-    @include('layouts.navigation')
+<body class="min-h-screen antialiased">
+    <div class="min-h-screen">
+        {{-- Pakai navbar Breeze biar konsisten --}}
+        @include('layouts.partials.cms-nav')
 
-    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-      @yield('content')
-    </main>
+        <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          @yield('content')
+        </main>
   </div>
 </body>
 </html>
