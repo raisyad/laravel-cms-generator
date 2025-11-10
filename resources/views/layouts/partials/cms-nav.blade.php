@@ -44,18 +44,8 @@
         </x-responsive-nav-link>
     </form>
 
-      <button
-        x-data="{ d: document.documentElement.classList.contains('dark') }"
-        x-init="$watch('d', v => { const el=document.documentElement; v?el.classList.add('dark'):el.classList.remove('dark'); localStorage.setItem('theme', v?'dark':'light'); })"
-        @click="d = !d"
-        x-cloak
-        type="button"
-        class="px-3 py-2 rounded-lg text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white focus-visible:ring-2"
-        :aria-pressed="d.toString()"
-        title="Toggle theme">
-        <span class="hidden dark:inline">🌙</span>
-        <span class="dark:hidden">☀️</span>
-      </button>
+      {{-- Theme toggle removed: use the centralized implementation in layouts/cms.blade.php --}}
+      {{-- This partial is deprecated. Theme toggle is now handled in the main CMS layout. --}}
     </nav>
   </div>
 </header>

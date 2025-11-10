@@ -7,7 +7,9 @@ use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 
-Route::redirect('/dashboard', '/cms')->middleware(['auth','verified']);
+Route::get('/cms', function () {
+    return view('cms.dashboard');
+})->middleware(['auth', 'verified'])->name('cms.dashboard');
 
 Route::middleware('guest')->group(function () {
     Route::get('/', function () { return view('welcome');})->name('home');
@@ -36,3 +38,18 @@ Route::middleware('auth')->group(function () {
 */
 
 require __DIR__.'/auth.php';
+
+// ---------------------------------------------
+// CMS routes group (auto-managed)
+// Jangan hapus marker START/END agar generator bisa inject resource
+// [cms-generator] START
+Route::middleware(['auth'])
+    ->prefix('cms')
+    ->as('cms.')
+    ->group(function () {
+        Route::get('/', function () {
+            return view('cms.dashboard');
+        })->name('dashboard');
+        // [cms-generator] INSERT HERE
+    });
+// [cms-generator] END
