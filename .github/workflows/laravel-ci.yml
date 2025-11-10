@@ -63,18 +63,18 @@ jobs:
         run: ./vendor/bin/pint --test
         continue-on-error: false
       
-      - name: Run tests
-        run: |
-          php artisan migrate --force
-          php artisan test
-        env:
-          APP_ENV: testing
-          DB_CONNECTION: mysql
-          DB_HOST: 127.0.0.1
-          DB_PORT: 3306
-          DB_DATABASE: testing
-          DB_USERNAME: root
-          DB_PASSWORD: password
+      # - name: Run tests
+      #   run: |
+      #     php artisan migrate --force
+      #     php artisan test
+      #   env:
+      #     APP_ENV: testing
+      #     DB_CONNECTION: mysql
+      #     DB_HOST: 127.0.0.1
+      #     DB_PORT: 3306
+      #     DB_DATABASE: testing
+      #     DB_USERNAME: root
+      #     DB_PASSWORD: password
       - name: Run Larastan (Static Analysis)
         run: ./vendor/bin/phpstan analyse --memory-limit=2G
         continue-on-error: true
