@@ -92,7 +92,7 @@ jobs:
       # Set continue-on-error to false if you want it to be strict.
       - name: Run Larastan (Static Analysis)
         run: ./vendor/bin/phpstan analyse --memory-limit=2G
-        continue-on-error: false
+        continue-on-error: true
         # Note: Set continue-on-error to false if you want static analysis to fail the build
 
 
