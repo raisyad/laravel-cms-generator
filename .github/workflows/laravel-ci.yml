@@ -16,17 +16,21 @@ jobs:
       matrix:
         php-version: ['8.2']
     
-    services:
-      # Optional: MySQL service for integration tests if needed
-      # Uncomment if you need a real database for tests
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: password
-          MYSQL_DATABASE: testing
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    # Optional: MySQL service for integration tests if needed
+    # Uncomment if you need a real database for tests
+    # services:
+      # mysql:
+      #   image: mysql:8.0
+      #   env:
+      #     MYSQL_ROOT_PASSWORD: password
+      #     MYSQL_DATABASE: testing
+      #   ports:
+      #     - 3306:3306
+        # options: >-
+        #   --health-cmd="mysqladmin ping"
+        #   --health-interval=10s
+        #   --health-timeout=5s
+        #   --health-retries=3
     
     steps:
       - name: Checkout code
@@ -59,10 +63,15 @@ jobs:
       - name: Generate application key
         run: php artisan key:generate
       
+      # Optional: Laravel Pint (code style).
+      # Enable if the project includes laravel/pint as dev dependency.
       - name: Run Laravel Pint (Code Style)
         run: ./vendor/bin/pint --test
         continue-on-error: false
-      
+        
+      # Required-ish: running tests.
+      # If the project has tests, this should stay.
+      # If not yet, it will just fail; users can comment it out or add tests.
       # - name: Run tests
       #   run: |
       #     php artisan migrate --force
@@ -75,11 +84,20 @@ jobs:
       #     DB_DATABASE: testing
       #     DB_USERNAME: root
       #     DB_PASSWORD: password
+          # By default, use .env.testing or fallback to sqlite config if defined there.
+          # For MySQL-based testing, override these in .env.testing or adjust env here.
+
+      # Optional: Larastan / PHPStan (static analysis).
+      # Enable if phpstan/larastan is installed.
+      # Set continue-on-error to false if you want it to be strict.
       - name: Run Larastan (Static Analysis)
         run: ./vendor/bin/phpstan analyse --memory-limit=2G
-        continue-on-error: true
+        continue-on-error: false
         # Note: Set continue-on-error to false if you want static analysis to fail the build
 
+
+  # Optional: Frontend build (for projects using Vite / frontend assets).
+  # Uncomment this block if the CMS generator (or generated apps) rely on npm build.
   frontend-build:
     name: Frontend Build
     runs-on: ubuntu-latest
