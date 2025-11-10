@@ -9,9 +9,11 @@ use Illuminate\Support\Str;
 
 class MakeCmsCommand extends Command
 {
-    private const CMS_GROUP_START  = "// [cms-generator] START";
-    private const CMS_GROUP_END    = "// [cms-generator] END";
-    private const CMS_INSERT_MARK  = "// [cms-generator] INSERT HERE";
+    private const CMS_GROUP_START = '// [cms-generator] START';
+
+    private const CMS_GROUP_END = '// [cms-generator] END';
+
+    private const CMS_INSERT_MARK = '// [cms-generator] INSERT HERE';
 
     /**
      * The name and signature of the console command.
@@ -124,7 +126,7 @@ class MakeCmsCommand extends Command
         $searchQuery = '';
         if ($this->option('with-search')) {
             // short array: ['title','body',...]
-            $colsList = '[' . implode(', ', array_map(fn($c) => "'".$c."'", array_values($fillable))) . ']';
+            $colsList = '['.implode(', ', array_map(fn ($c) => "'".$c."'", array_values($fillable))).']';
             $searchQuery = <<<PHP
                 if (\$q) {
                     \$cols = {$colsList};
@@ -167,23 +169,23 @@ class MakeCmsCommand extends Command
         $policyCalls = '';
         if ($this->option('with-policy')) {
             $policyCalls = [
-                'index'   => "\$this->authorize('viewAny', \\App\\Models\\{$Model}::class);",
-                'create'  => "\$this->authorize('create', \\App\\Models\\{$Model}::class);",
-                'store'   => "\$this->authorize('create', \\App\\Models\\{$Model}::class);",
-                'show'    => "\$this->authorize('view', \${$var});",
-                'edit'    => "\$this->authorize('update', \${$var});",
-                'update'  => "\$this->authorize('update', \${$var});",
+                'index' => "\$this->authorize('viewAny', \\App\\Models\\{$Model}::class);",
+                'create' => "\$this->authorize('create', \\App\\Models\\{$Model}::class);",
+                'store' => "\$this->authorize('create', \\App\\Models\\{$Model}::class);",
+                'show' => "\$this->authorize('view', \${$var});",
+                'edit' => "\$this->authorize('update', \${$var});",
+                'update' => "\$this->authorize('update', \${$var});",
                 'destroy' => "\$this->authorize('delete', \${$var});",
                 'restore' => "\$this->authorize('restore', \${$var});", // optional
             ];
         } else {
             $policyCalls = [
-                'index'   => '',
-                'create'  => '',
-                'store'   => '',
-                'show'    => '',
-                'edit'    => '',
-                'update'  => '',
+                'index' => '',
+                'create' => '',
+                'store' => '',
+                'show' => '',
+                'edit' => '',
+                'update' => '',
                 'destroy' => '',
                 'restore' => '',
             ];
@@ -191,27 +193,27 @@ class MakeCmsCommand extends Command
 
         // ===== Controller
         $controllerContent = $stub->render(base_path('stubs/cms/controller.stub'), [
-            'model'               => $Model,
-            'var'                 => $var,
-            'kebabs'              => $kebabs,
-            'softDeletesQuery'    => rtrim($softDeletesQuery),
-            'searchQuery'         => rtrim($searchQuery),
-            'fkListLoadsCreate'   => rtrim($fkLoadsCreate),
-            'fkListLoadsEdit'     => rtrim($fkLoadsEdit),
-            'fkCompactIndex'      => '',
-            'fkCompactCreate'     => $fkCompactCreate,
-            'fkCompactEdit'       => $fkCompactEdit,
-            'routeNamePrefix'     => $routeNamePrefix,
+            'model' => $Model,
+            'var' => $var,
+            'kebabs' => $kebabs,
+            'softDeletesQuery' => rtrim($softDeletesQuery),
+            'searchQuery' => rtrim($searchQuery),
+            'fkListLoadsCreate' => rtrim($fkLoadsCreate),
+            'fkListLoadsEdit' => rtrim($fkLoadsEdit),
+            'fkCompactIndex' => '',
+            'fkCompactCreate' => $fkCompactCreate,
+            'fkCompactEdit' => $fkCompactEdit,
+            'routeNamePrefix' => $routeNamePrefix,
 
             // policy injection
-            'authorizeIndex'      => $policyCalls['index'],
-            'authorizeCreate'     => $policyCalls['create'],
-            'authorizeStore'      => $policyCalls['store'],
-            'authorizeShow'       => $policyCalls['show'],
-            'authorizeEdit'       => $policyCalls['edit'],
-            'authorizeUpdate'     => $policyCalls['update'],
-            'authorizeDestroy'    => $policyCalls['destroy'],
-            'authorizeRestore'    => $policyCalls['restore'],
+            'authorizeIndex' => $policyCalls['index'],
+            'authorizeCreate' => $policyCalls['create'],
+            'authorizeStore' => $policyCalls['store'],
+            'authorizeShow' => $policyCalls['show'],
+            'authorizeEdit' => $policyCalls['edit'],
+            'authorizeUpdate' => $policyCalls['update'],
+            'authorizeDestroy' => $policyCalls['destroy'],
+            'authorizeRestore' => $policyCalls['restore'],
         ]);
         $stub->put(base_path("app/Http/Controllers/{$Model}Controller.php"), $controllerContent);
         $this->info("Controller Created: {$Model}Controller");
@@ -325,29 +327,28 @@ class MakeCmsCommand extends Command
     }
 
     private function inputForField(array $f, string $var, array $fkMap): string
-{
-    $name  = $f['name'];
-    $label = ucwords(str_replace('_', ' ', $name));
+    {
+        $name = $f['name'];
+        $label = ucwords(str_replace('_', ' ', $name));
 
-    // nilai lama / default (untuk create/edit)
-    $valueExpr = "{{ old('{$name}', \${$var}->{$name} ?? '') }}";
+        // nilai lama / default (untuk create/edit)
+        $valueExpr = "{{ old('{$name}', \${$var}->{$name} ?? '') }}";
 
-    // Kelas umum untuk input agar mulus & tanpa outline hitam
-    $inputBase = 'mt-1 block w-full rounded-xl border border-transparent ring-1 ring-slate-300 '.
-             'bg-white px-3 py-2 text-slate-900 placeholder-slate-400 '.
-             'focus:outline-none focus:ring-2 focus:ring-indigo-500 '.
-             'dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400 dark:ring-slate-700';
+        // Kelas umum untuk input agar mulus & tanpa outline hitam
+        $inputBase = 'mt-1 block w-full rounded-xl border border-transparent ring-1 ring-slate-300 '.
+                 'bg-white px-3 py-2 text-slate-900 placeholder-slate-400 '.
+                 'focus:outline-none focus:ring-2 focus:ring-indigo-500 '.
+                 'dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400 dark:ring-slate-700';
 
+        $errorLine = "@error('{$name}')<p class=\"mt-1 text-sm text-red-600\">{{ \$message }}</p>@enderror";
 
-    $errorLine = "@error('{$name}')<p class=\"mt-1 text-sm text-red-600\">{{ \$message }}</p>@enderror";
+        // ===== Relasi FK => <select>
+        if (isset($fkMap[$name])) {
+            $ref = $fkMap[$name];
+            $list = $ref['listVar'];  // ex: $categories
+            $optLbl = $ref['label'] ?? 'name';
 
-    // ===== Relasi FK => <select>
-    if (isset($fkMap[$name])) {
-        $ref    = $fkMap[$name];
-        $list   = $ref['listVar'];  // ex: $categories
-        $optLbl = $ref['label'] ?? 'name';
-
-        return <<<HTML
+            return <<<HTML
 <div class="grid grid-cols-12 items-start gap-4">
   <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium dark:text-slate-300">{$label}</label>
   <div class="col-span-12 sm:col-span-6">
@@ -363,12 +364,12 @@ class MakeCmsCommand extends Command
   </div>
 </div>
 HTML;
-    }
+        }
 
-    // ===== Field khusus
-    // boolean => checkbox
-    if ($f['type'] === 'boolean') {
-        return <<<HTML
+        // ===== Field khusus
+        // boolean => checkbox
+        if ($f['type'] === 'boolean') {
+            return <<<HTML
 <div class="grid grid-cols-12 items-center gap-4">
   <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium dark:text-slate-300">{$label}</label>
   <div class="col-span-12 sm:col-span-6">
@@ -382,11 +383,11 @@ HTML;
   </div>
 </div>
 HTML;
-    }
+        }
 
-    // json => textarea pretty
-    if ($f['type'] === 'json') {
-        return <<<HTML
+        // json => textarea pretty
+        if ($f['type'] === 'json') {
+            return <<<HTML
 <div class="grid grid-cols-12 items-start gap-4">
   <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium dark:text-slate-300">{$label}</label>
   <div class="col-span-12 sm:col-span-8">
@@ -396,31 +397,37 @@ HTML;
   </div>
 </div>
 HTML;
-    }
+        }
 
-    // Jenis input lain
-    $type = 'text';
-    switch ($f['type']) {
-        case 'integer':
-        case 'decimal':
-            $type = 'number';
-            break;
-        case 'datetime':
-            $type = 'datetime-local';
-            break;
-        default:
-            if (preg_match('/email/i', $name))      $type = 'email';
-            elseif (preg_match('/password/i', $name)) $type = 'password';
-            elseif (preg_match('/url|link/i', $name)) $type = 'url';
-            elseif (preg_match('/date/i', $name))     $type = 'date';
-            elseif (preg_match('/time/i', $name))     $type = 'time';
-    }
+        // Jenis input lain
+        $type = 'text';
+        switch ($f['type']) {
+            case 'integer':
+            case 'decimal':
+                $type = 'number';
+                break;
+            case 'datetime':
+                $type = 'datetime-local';
+                break;
+            default:
+                if (preg_match('/email/i', $name)) {
+                    $type = 'email';
+                } elseif (preg_match('/password/i', $name)) {
+                    $type = 'password';
+                } elseif (preg_match('/url|link/i', $name)) {
+                    $type = 'url';
+                } elseif (preg_match('/date/i', $name)) {
+                    $type = 'date';
+                } elseif (preg_match('/time/i', $name)) {
+                    $type = 'time';
+                }
+        }
 
-    // textarea untuk field bernama "body", "description", atau tipe text panjang
-    $isLikelyTextArea = in_array($name, ['body','description','content'], true);
+        // textarea untuk field bernama "body", "description", atau tipe text panjang
+        $isLikelyTextArea = in_array($name, ['body', 'description', 'content'], true);
 
-    if ($isLikelyTextArea) {
-        return <<<HTML
+        if ($isLikelyTextArea) {
+            return <<<HTML
 <div class="grid grid-cols-12 items-start gap-4">
   <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium dark:text-slate-300">{$label}</label>
   <div class="col-span-12 sm:col-span-8">
@@ -429,10 +436,10 @@ HTML;
   </div>
 </div>
 HTML;
-    }
+        }
 
-    // default: input
-    return <<<HTML
+        // default: input
+        return <<<HTML
 <div class="grid grid-cols-12 items-start gap-4">
   <label class="col-span-12 sm:col-span-2 pt-2 text-sm font-medium dark:text-slate-300">{$label}</label>
   <div class="col-span-12 sm:col-span-6">
@@ -441,7 +448,7 @@ HTML;
   </div>
 </div>
 HTML;
-}
+    }
 
     private function phpArray(array $arr): string
     {
@@ -544,8 +551,8 @@ HTML;
             ? file_get_contents($webFile)
             : "<?php\n\nuse Illuminate\\Support\\Facades\\Route;\n\n";
 
-        if (!str_contains($content, self::CMS_GROUP_START)) {
-            $block = <<<PHP
+        if (! str_contains($content, self::CMS_GROUP_START)) {
+            $block = <<<'PHP'
 
     // ---------------------------------------------
     // CMS routes group (auto-managed)
@@ -565,11 +572,12 @@ HTML;
     PHP;
             $content .= $block;
             file_put_contents($webFile, $content);
+
             return;
         }
 
         // pastikan marker INSERT ada
-        if (!str_contains($content, self::CMS_INSERT_MARK)) {
+        if (! str_contains($content, self::CMS_INSERT_MARK)) {
             // sisipkan marker sebelum END, di dalam function
             $posEnd = strpos($content, self::CMS_GROUP_END);
             if ($posEnd !== false) {
@@ -578,8 +586,8 @@ HTML;
                 if ($closePos !== false) {
                     // sisipkan marker tepat sebelum '});'
                     $content = substr($content, 0, $closePos)
-                        . "        " . self::CMS_INSERT_MARK . "\n    "
-                        . substr($content, $closePos);
+                        .'        '.self::CMS_INSERT_MARK."\n    "
+                        .substr($content, $closePos);
                     file_put_contents($webFile, $content);
                 }
             }
@@ -594,7 +602,7 @@ HTML;
     {
         $content = file_get_contents($webFile);
 
-        if (!str_contains($content, self::CMS_INSERT_MARK)) {
+        if (! str_contains($content, self::CMS_INSERT_MARK)) {
             $this->ensureCmsGroupExists($webFile);
             $content = file_get_contents($webFile);
         }
@@ -602,10 +610,10 @@ HTML;
         $injectBlock = '';
         foreach ($lines as $line) {
             $line = rtrim($line);
-            if (!str_ends_with($line, ';')) {
+            if (! str_ends_with($line, ';')) {
                 $line .= ';';
             }
-            if (!str_contains($content, $line)) {
+            if (! str_contains($content, $line)) {
                 $injectBlock .= "        {$line}\n";
             }
         }
@@ -613,7 +621,7 @@ HTML;
         if ($injectBlock !== '') {
             $content = str_replace(
                 self::CMS_INSERT_MARK,
-                self::CMS_INSERT_MARK . "\n" . rtrim($injectBlock, "\n"),
+                self::CMS_INSERT_MARK."\n".rtrim($injectBlock, "\n"),
                 $content
             );
             file_put_contents($webFile, $content);
@@ -625,7 +633,9 @@ HTML;
      */
     private function removeLegacyCmsRoutes(string $webFile, string $kebabs): void
     {
-        if (!file_exists($webFile)) return;
+        if (! file_exists($webFile)) {
+            return;
+        }
 
         $content = file_get_contents($webFile);
         $patterns = [
@@ -641,10 +651,11 @@ HTML;
             $new = preg_replace_callback($re, function ($m) use ($content) {
                 $s = strpos($content, $m[0]);
                 $start = strpos($content, self::CMS_GROUP_START);
-                $end   = strpos($content, self::CMS_GROUP_END);
+                $end = strpos($content, self::CMS_GROUP_END);
                 if ($start !== false && $end !== false && $s > $start && $s < $end) {
                     return $m[0]; // biarkan jika di dalam group
                 }
+
                 return ''; // hapus jika di luar group
             }, $new);
         }
@@ -654,16 +665,16 @@ HTML;
         }
     }
 
-    private function upsertCmsResourceConfig(string $slug, string $label = null): void
+    private function upsertCmsResourceConfig(string $slug, ?string $label = null): void
     {
         $cfgPath = config_path('cms.php');
-        $config  = file_exists($cfgPath) ? include $cfgPath : ['resources' => []];
+        $config = file_exists($cfgPath) ? include $cfgPath : ['resources' => []];
 
         $label ??= \Illuminate\Support\Str::headline($slug);
 
         $config['resources'][$slug] = $config['resources'][$slug] ?? [
-            'label'   => $label,
-            'icon'    => null,
+            'label' => $label,
+            'icon' => null,
             'visible' => true,
         ];
 
@@ -673,6 +684,6 @@ HTML;
         $export = preg_replace('/\barray \(/', '[', $export);   // all "array ("
         $export = preg_replace('/\)(,?)/', ']$1', $export);     // every closing ")" -> "]" (with optional comma)
 
-        file_put_contents($cfgPath, "<?php\n\nreturn " . $export . ";\n");
+        file_put_contents($cfgPath, "<?php\n\nreturn ".$export.";\n");
     }
 }

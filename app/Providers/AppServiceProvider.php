@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,6 +34,6 @@ class AppServiceProvider extends ServiceProvider
         // __DIR__.'/../stubs/cms' => base_path('stubs/cms'),
         // ], 'cms-generator-stubs');
         // RedirectIfAuthenticated::redirectUsing(fn () => route('your-route'));
-        Blade::if('active', fn($pattern) => request()->routeIs($pattern));
+        Blade::if('active', fn ($pattern) => request()->routeIs($pattern));
     }
 }
