@@ -1,4 +1,4 @@
-name: Laravel CI
+name: Development
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint-and-test:
-    name: Lint and Test
+    name: PHP Build and Test
     runs-on: ubuntu-latest
     
     # Use PHP 8.2 (Laravel 12 requires PHP 8.2+)
