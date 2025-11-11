@@ -6,6 +6,6 @@ return [
             'label' => 'Dashboard',
             'icon' => 'layout-dashboard',
             'visible' => true,
-        ]
+        ],
     ],
 ];
