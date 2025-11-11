@@ -9,11 +9,10 @@ use Illuminate\Support\Str;
 class CmsNavigation
 {
     /**
-    * Resolve the navigation items that should be displayed in the CMS layout.
-    *
-    * @param  \Illuminate\Http\Request|null  $request
-    * @return array<int, array<string, mixed>>
-    */
+     * Resolve the navigation items that should be displayed in the CMS layout.
+     *
+     * @return array<int, array<string, mixed>>
+     */
     public static function items(?Request $request = null): array
     {
         $resources = config('cms.resources', []);
@@ -22,7 +21,7 @@ class CmsNavigation
         $items = [];
 
         foreach ($resources as $key => $resource) {
-            if (!is_array($resource)) {
+            if (! is_array($resource)) {
                 continue;
             }
 
@@ -68,12 +67,10 @@ class CmsNavigation
     }
 
     /**
-    * Resolve the intended route name for a resource.
-    *
-    * @param  string  $key
-    * @param  array<string, mixed>  $resource
-    * @return string|null
-    */
+     * Resolve the intended route name for a resource.
+     *
+     * @param  array<string, mixed>  $resource
+     */
     protected static function resolveRouteName(string $key, array $resource): ?string
     {
         $explicit = $resource['route'] ?? null;
@@ -92,8 +89,6 @@ class CmsNavigation
     /**
      * Resolve the patterns that should match an "active" navigation state.
      *
-     * @param  string  $key
-     * @param  string  $routeName
      * @param  array<string, mixed>  $resource
      * @return array<int, string>
      */
@@ -101,12 +96,12 @@ class CmsNavigation
     {
         $patterns = [];
 
-        if (!empty($resource['active_patterns']) && is_array($resource['active_patterns'])) {
+        if (! empty($resource['active_patterns']) && is_array($resource['active_patterns'])) {
             $patterns = array_filter($resource['active_patterns'], fn ($pattern) => is_string($pattern) && $pattern !== '');
         }
 
         $patterns[] = $routeName;
-        $patterns[] = $routeName . '.*';
+        $patterns[] = $routeName.'.*';
         $patterns[] = "cms.{$key}*";
         $patterns[] = "cms.{$key}.*";
 
@@ -119,9 +114,6 @@ class CmsNavigation
      * Uses the same logic as items() to determine which resource is active,
      * then returns its label. Falls back to "Dashboard" for the main CMS route,
      * or "CMS" if no resource matches.
-     *
-     * @param  \Illuminate\Http\Request|null  $request
-     * @return string
      */
     public static function currentSectionLabel(?Request $request = null): string
     {
@@ -130,7 +122,7 @@ class CmsNavigation
 
         // Check each resource to find the active one
         foreach ($resources as $key => $resource) {
-            if (!is_array($resource)) {
+            if (! is_array($resource)) {
                 continue;
             }
 
@@ -172,9 +164,6 @@ class CmsNavigation
      * Get the URL of the currently active CMS section/resource.
      *
      * Returns the index route URL for the active resource, or dashboard URL as fallback.
-     *
-     * @param  \Illuminate\Http\Request|null  $request
-     * @return string|null
      */
     public static function currentSectionUrl(?Request $request = null): ?string
     {
@@ -183,7 +172,7 @@ class CmsNavigation
 
         // Check each resource to find the active one
         foreach ($resources as $key => $resource) {
-            if (!is_array($resource)) {
+            if (! is_array($resource)) {
                 continue;
             }
 
@@ -226,9 +215,6 @@ class CmsNavigation
      * Uses the same logic as items() to determine which resource is active,
      * then returns its key. Falls back to "dashboard" for the main CMS route,
      * or null if no resource matches.
-     *
-     * @param  \Illuminate\Http\Request|null  $request
-     * @return string|null
      */
     public static function currentSectionKey(?Request $request = null): ?string
     {
@@ -237,7 +223,7 @@ class CmsNavigation
 
         // Check each resource to find the active one
         foreach ($resources as $key => $resource) {
-            if (!is_array($resource)) {
+            if (! is_array($resource)) {
                 continue;
             }
 
@@ -274,4 +260,3 @@ class CmsNavigation
         return null;
     }
 }
-
