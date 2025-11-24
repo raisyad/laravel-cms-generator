@@ -34,7 +34,7 @@
       @endforeach
 
       <!-- Authentication -->
-    <form method="POST" action="{{ route('logout') }}">
+    <form method="POST" action="{{ route('logout') }}" data-cms-confirm="logout">
         @csrf
 
         <x-responsive-nav-link :href="route('logout')"

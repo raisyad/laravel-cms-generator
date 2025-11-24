@@ -194,7 +194,7 @@
                     </button>
 
                     {{-- Log Out Button --}}
-                    <form method="POST" action="{{ route('logout') }}" class="contents">
+                    <form method="POST" action="{{ route('logout') }}" class="contents" data-cms-confirm="logout">
                         @csrf
                         <button type="submit"
                                 class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-red-600 text-white hover:bg-red-500 transition-colors">
@@ -255,6 +255,40 @@
                     @endforeach
                 </nav>
             </aside>
+        </div>
+    </div>
+
+    {{-- Global confirmation modal used by any form that sets data-cms-confirm --}}
+    <div id="cms-confirm-overlay"
+         class="fixed inset-0 z-[120] hidden items-center justify-center bg-slate-900/60 px-4 py-6"
+         role="presentation"
+         aria-hidden="true">
+        <div id="cms-confirm-dialog"
+             class="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-100 dark:border-slate-800 p-6 space-y-4"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="cms-confirm-title"
+             aria-describedby="cms-confirm-message">
+            <div class="space-y-1">
+                <p id="cms-confirm-title" class="text-base font-semibold text-slate-900 dark:text-slate-100">
+                    Konfirmasi
+                </p>
+                <p id="cms-confirm-message" class="text-sm text-slate-600 dark:text-slate-300">
+                    {{-- Message is injected by resources/js/cms-confirm.js --}}
+                </p>
+            </div>
+            <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <button id="cms-confirm-cancel"
+                        type="button"
+                        class="w-full sm:w-auto rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-300 dark:focus:ring-slate-600 dark:focus:ring-offset-slate-900 transition-colors">
+                    Batal
+                </button>
+                <button id="cms-confirm-confirm"
+                        type="button"
+                        class="w-full sm:w-auto rounded-lg bg-sky-600 text-white px-4 py-2 text-sm font-semibold hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-400 dark:focus:ring-offset-slate-900 transition-colors">
+                    Ya, lanjutkan
+                </button>
+            </div>
         </div>
     </div>
 

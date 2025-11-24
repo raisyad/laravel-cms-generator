@@ -1,4 +1,5 @@
 import './bootstrap';
+import './cms-confirm';
 
 import Alpine from 'alpinejs';
 
